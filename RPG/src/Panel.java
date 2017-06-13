@@ -163,6 +163,7 @@ public class Panel extends JPanel implements Runnable {
 				walls.clear();
 			} else {
 				gameWon = true;
+				repaint();
 			}
 		}
 		
