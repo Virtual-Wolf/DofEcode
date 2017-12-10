@@ -1,4 +1,3 @@
-
 import java.awt.event.*;
 
 import javax.swing.*;
@@ -9,7 +8,7 @@ public class Game extends JFrame {
 	public static int level = 1;
 	
 	public Game() {
-		ImageIcon image = new ImageIcon("src/gfx/Floor.png");
+		ImageIcon image = new ImageIcon(getClass().getResource("/gfx/Turtle.png"));
 		setIconImage(image.getImage());
 		setSize(806, 429);
 		setResizable(false);

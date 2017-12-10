@@ -16,7 +16,7 @@ public class Panel extends JPanel implements Runnable {
 	public boolean pickedUpKey = false;
 	public boolean gameOver, gameWon = false;
 	private Rectangle doorRect, keyRect, winRect = new Rectangle(0,0,0,0);
-	private ImageIcon floor, wall, player, playerL, playerR, door, openDoor, key, keyFloor, enemy, winFlag;
+	private ImageIcon floor, wall, player, enemy, playerL, playerR, playerL2, playerR2, door, openDoor, key, keyFloor, enemyL, enemyR, winFlag;
 	private Thread game;
 	
 	public Panel() {
@@ -24,14 +24,18 @@ public class Panel extends JPanel implements Runnable {
 		floor = new ImageIcon(getClass().getResource("/gfx/Floor.png"));
 		wall = new ImageIcon(getClass().getResource("/gfx/Wall.png"));
 		playerR = new ImageIcon(getClass().getResource("/gfx/Turtle.png"));
-		playerL = new ImageIcon(getClass().getResource("/gfx/Turtle2.png"));
-		player = playerR;
+		playerL = new ImageIcon(getClass().getResource("/gfx/LTurtle.png"));
+		playerR2 = new ImageIcon(getClass().getResource("/gfx/Turtle2.png"));
+		playerL2 = new ImageIcon(getClass().getResource("/gfx/LTurtle2.png"));
 		door = new ImageIcon(getClass().getResource("/gfx/Door.png"));
 		openDoor = new ImageIcon(getClass().getResource("/gfx/DoorOpen.png"));
 		key = new ImageIcon(getClass().getResource("/gfx/Key.png"));
 		keyFloor = new ImageIcon(getClass().getResource("/gfx/KeyFloor.png"));
-		enemy = new ImageIcon(getClass().getResource("/gfx/PurpleTurtle.png"));
+		enemyL = new ImageIcon(getClass().getResource("/gfx/PurpleTurtle.png"));
+		enemyR = new ImageIcon(getClass().getResource("/gfx/RPurpleTurtle.png"));
 		winFlag = new ImageIcon(getClass().getResource("/gfx/WinFlag.png"));
+		enemy = enemyL;
+		player = playerR;
 		repaint();
 		setFocusable(true);
 		this.addKeyListener(new KeyEvents());
@@ -94,98 +98,103 @@ public class Panel extends JPanel implements Runnable {
 		 g.drawImage(enemy.getImage(), eX, eY, null);
 		 g.drawImage(player.getImage(), pX, pY, null);
 		 if(gameOver) {
-			 g.drawImage(new ImageIcon("src/gfx/GameOver.png").getImage(), 0, 0, null);
+			 g.drawImage(new ImageIcon(getClass().getResource("/gfx/GameOver.png")).getImage(), 0, 0, null);
 		 }
-		 if (gameWon && Game.level == 2) {
-			 g.drawImage(new ImageIcon("src/gfx/GameWon.png").getImage(), 0, 0, null);
+		 if (gameWon) {
+			 g.drawImage(new ImageIcon(getClass().getResource("/gfx/GameWon.png")).getImage(), 0, 0, null);
 		 }
 	}
 	
 	public int tpic = 1;
+	public int tdir = 0;
+	public int edir = 1;
 	
 	@Override
 	public void run() {
-		if (doorOpen) {
-			if (eX < pX) {
-				boolean canMove = true;
-				for(Rectangle r : walls) {
-					 if (r.contains(eX+35+enemySpeed, eY)|| r.contains(eX+35+enemySpeed, eY+17)) {
-						 canMove = false;
+		while (!gameOver && !gameWon) {
+			if (doorOpen) {
+				if (eX < pX) {
+					edir = 0;
+					boolean canMove = true;
+					for(Rectangle r : walls) {
+						 if (r.contains(eX+35+enemySpeed, eY)|| r.contains(eX+35+enemySpeed, eY+17)) {
+							 canMove = false;
+						 }
 					 }
-				 }
-				 if (canMove) {
-					 eX+=enemySpeed;
-				 }
-			} else if (eX > pX) {
-				boolean canMove = true;
-				for(Rectangle r : walls) {
-					 if (r.contains(eX-enemySpeed, eY) || r.contains(eX-enemySpeed, eY+17)) {
-						 canMove = false;
+					 if (canMove) {
+						 eX+=enemySpeed;
 					 }
-				 }
-				 if (canMove) {
-					 eX -=enemySpeed;
-				 }
-			}
-			if (eY < pY) {
-				boolean canMove = true;
-				 for(Rectangle r : walls) {
-					 if (r.contains(eX, eY+17+enemySpeed) || r.contains(eX+35, eY+17+enemySpeed)) {
-						 canMove = false;
+				} else if (eX > pX) {
+					edir = 1;
+					boolean canMove = true;
+					for(Rectangle r : walls) {
+						 if (r.contains(eX-enemySpeed, eY) || r.contains(eX-enemySpeed, eY+17)) {
+							 canMove = false;
+						 }
 					 }
-				 }
-				 if (canMove) {
-					 eY +=enemySpeed;
-				 }	
-			} else if (eY > pY) {
-				boolean canMove = true;
-				for(Rectangle r : walls) {
-					 if (r.contains(eX, eY-enemySpeed) || r.contains(eX+35, eY-enemySpeed)) {
-						 canMove = false;
+					 if (canMove) {
+						 eX -=enemySpeed;
 					 }
-				 }
-				 if (canMove) {
-					 eY -=enemySpeed;
-				 }
-			}
-	}
-		
-		if(winRect.contains(pX, pY) || winRect.contains(pX+35, pY) || winRect.contains(pX, pY+17) || winRect.contains(pX+35, pY+17)) {
-			if(Game.level < 2) {
-				Game.level ++;
-				pX = 100;
-				pY = 100;
-				eX = 700;
-				eY = 300;
-				doorOpen = false;
-				pickedUpKey = false;
-				loadMap(Game.level);
-				walls.clear();
-			} else {
-				gameWon = true;
-				repaint();
-			}
+				}
+				if (eY < pY) {
+					boolean canMove = true;
+					 for(Rectangle r : walls) {
+						 if (r.contains(eX, eY+17+enemySpeed) || r.contains(eX+35, eY+17+enemySpeed)) {
+							 canMove = false;
+						 }
+					 }
+					 if (canMove) {
+						 eY +=enemySpeed;
+					 }	
+				} else if (eY > pY) {
+					boolean canMove = true;
+					for(Rectangle r : walls) {
+						 if (r.contains(eX, eY-enemySpeed) || r.contains(eX+35, eY-enemySpeed)) {
+							 canMove = false;
+						 }
+					 }
+					 if (canMove) {
+						 eY -=enemySpeed;
+					 }
+				}
 		}
-		
-		Rectangle turtRect = new Rectangle(pX, pY, 35, 17);
-		if (turtRect.contains(eX, eY) || turtRect.contains(eX+35, eY) || turtRect.contains(eX, eY + 17) || turtRect.contains(eX + 35, eY + 17)) {
-			gameOver = true;
+			if(edir == 0) {
+				enemy = enemyR;
+			} else {
+				enemy = enemyL;
+			}
+			if(winRect.contains(pX, pY) || winRect.contains(pX+35, pY) || winRect.contains(pX, pY+17) || winRect.contains(pX+35, pY+17)) {
+				if(Game.level < 4) {
+					Game.level ++;
+					pX = 100;
+					pY = 100;
+					eX = 700;
+					eY = 300;
+					doorOpen = false;
+					pickedUpKey = false;
+					loadMap(Game.level);
+					walls.clear();
+				} else {
+					gameWon = true;
+					repaint();
+				}
+			}
+			
+			Rectangle turtRect = new Rectangle(pX, pY, 35, 17);
+			if (turtRect.contains(eX, eY) || turtRect.contains(eX+35, eY) || turtRect.contains(eX, eY + 17) || turtRect.contains(eX + 35, eY + 17)) {
+				gameOver = true;
+			}
+			repaint();
+			try {
+				game.sleep(40);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		repaint();
-		if (!gameOver && !gameWon) {
-			fps();
-		}
 	}
 	
-	private void fps() {
-		try {
-			game.sleep(40);
-			game.run();
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 
 	public class KeyEvents implements KeyListener {
 
@@ -226,6 +235,7 @@ public class Panel extends JPanel implements Runnable {
 				 }
 			}
 			if (e.getKeyChar() == 'a') {
+				tdir = 1;
 				boolean canMove = true;
 				for(Rectangle r : walls) {
 					 if (r.contains(pX-4, pY) || r.contains(pX-4, pY+17)) {
@@ -243,6 +253,7 @@ public class Panel extends JPanel implements Runnable {
 				 }
 			}
 			if (e.getKeyChar() == 'd') {
+				tdir = 0;
 				boolean canMove = true;
 				for(Rectangle r : walls) {
 					 if (r.contains(pX+35+4, pY)|| r.contains(pX+35+4, pY+17)) {
@@ -263,9 +274,17 @@ public class Panel extends JPanel implements Runnable {
 				pickedUpKey = true;
 			}
 			if(tpic < 6) {
-				player = playerR;
+				if(tdir == 0) {
+					player = playerR;
+				} else {
+					player = playerL;
+				}
 			} else {
-				player = playerL;
+				if(tdir == 0) {
+					player = playerR2;
+				} else {
+					player = playerL2;
+				}
 			}
 			
 			if (tpic > 10) {
